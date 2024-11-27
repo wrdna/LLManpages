@@ -3,12 +3,11 @@ import itertools
 
 def generate_combinations(sections):
     combinations_list = []
-    
-    # iterate over all possible input section sizes (1 to len(sections)-1)
-    for r in range(1, len(sections)):
-        for input_sections in itertools.combinations(sections, r):
-            output_sections = [s for s in sections if s not in input_sections]
-            combinations_list.append((list(input_sections), output_sections))
+
+    for input_section in itertools.combinations(sections, 1):
+        input_sections = list(input_section)
+        output_sections = [s for s in sections if s not in input_sections]
+        combinations_list.append((input_sections, output_sections))
     
     return combinations_list
 
@@ -26,9 +25,9 @@ def generate_fine_tuning_samples(data_file, output_file):
                 print(f"Skipping {entry.get('name', 'Unknown Filename')} - Not enough sections. {len(section_titles)}")
                 continue
 
-            if len(section_titles) > 10:
-                print(f"Skipping {entry.get('name', 'Unknown Filename')} - Too many sections. {len(section_titles)}")
-                continue
+            #if len(section_titles) > 10:
+            #    print(f"Skipping {entry.get('name', 'Unknown Filename')} - Too many sections. {len(section_titles)}")
+            #    continue
     
             combinations = generate_combinations(section_titles)
     
@@ -37,12 +36,12 @@ def generate_fine_tuning_samples(data_file, output_file):
             for input_sections, output_sections in combinations:
 
                 input_content = "\n".join(
-                    f"<SECTION>{title}</SECTION>\n{sections[title].strip()}"
+                    f"<SECTION>{title.upper()}</SECTION>\n{sections[title].strip()}"
                     for title in input_sections
                 )
 
                 output_content = "\n".join(
-                    f"<SECTION>{title}</SECTION>\n{sections[title].strip()}"
+                    f"<SECTION>{title.upper()}</SECTION>\n{sections[title].strip()}"
                     for title in output_sections
                 )
                 io_pair = {"input": input_content, "output": output_content}
